@@ -1,0 +1,154 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BuildLogCard from '../components/BuildLogCard.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+
+// Load site settings
+const settings = await reader.singletons.siteSettings.read();
+
+// Load all build logs, sorted newest first, take the 3 most recent
+const allLogs = await reader.collections.buildLogs.all();
+const recentLogs = allLogs
+  .filter((log) => log.entry.date)
+  .sort((a, b) => new Date(b.entry.date!).getTime() - new Date(a.entry.date!).getTime())
+  .slice(0, 3);
+---
+
+<Layout
+  title={settings?.siteTitle ?? 'Geoffrey'}
+  description={settings?.siteDescription ?? undefined}
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero__title">{settings?.heroTitle ?? 'Project Geoffrey'}</h1>
+      <p class="hero__text">{settings?.heroText}</p>
+      <a href="/build-log" class="btn">View all build log entries →</a>
+    </div>
+  </section>
+
+  <!-- Recent entries -->
+  {recentLogs.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-header__title">Latest Updates</h2>
+          <a href="/build-log" class="section-header__link">View all →</a>
+        </div>
+        <div class="card-grid">
+          {recentLogs.map((log) => (
+            <BuildLogCard
+              slug={log.slug}
+              title={log.entry.title}
+              date={log.entry.date}
+              phase={log.entry.phase}
+              vehicle={log.entry.vehicle}
+              status={log.entry.status}
+              summary={log.entry.summary}
+              coverImage={log.entry.coverImage}
+            />
+          ))}
+        </div>
+        <div class="view-all">
+          <a href="/build-log" class="btn btn--outline">View all entries →</a>
+        </div>
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .hero {
+    padding-block: 5rem 4rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--color-accent);
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__text {
+    font-size: 1.15rem;
+    color: var(--color-text-muted);
+    max-width: 60ch;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.65em 1.4em;
+    background: var(--color-accent);
+    color: #0f0f0f;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .btn:hover {
+    background: var(--color-accent-hover);
+    text-decoration: none;
+    color: #0f0f0f;
+  }
+
+  .btn--outline {
+    background: transparent;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+  }
+
+  .btn--outline:hover {
+    background: var(--color-accent);
+    color: #0f0f0f;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-header__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .section-header__link {
+    font-size: 0.9rem;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .view-all {
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding-block: 3rem 2.5rem;
+    }
+
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

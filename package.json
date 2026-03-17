@@ -1,0 +1,22 @@
+{
+  "name": "geoffrey",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "A build log for my 1962 Renault Dauphine",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.0.0",
+    "@astrojs/react": "^5.0.0",
+    "@keystatic/astro": "^5.0.0",
+    "@keystatic/core": "^0.5.0",
+    "astro": "^5.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

@@ -1,0 +1,73 @@
+---
+/**
+ * Gallery — lightbox-style image grid for build log photos.
+ */
+interface Props {
+  images: readonly (string | null)[];
+  alt?: string;
+}
+
+const { images, alt = 'Build log photo' } = Astro.props;
+const validImages = images.filter((img): img is string => img !== null && img !== '');
+---
+
+{validImages.length > 0 && (
+  <div class="gallery">
+    <h3 class="gallery__heading">Gallery</h3>
+    <div class="gallery__grid">
+      {validImages.map((src, i) => (
+        <a href={src} class="gallery__item" target="_blank" rel="noopener noreferrer">
+          <img src={src} alt={`${alt} ${i + 1}`} loading="lazy" class="gallery__image" />
+        </a>
+      ))}
+    </div>
+  </div>
+)}
+
+<style>
+  .gallery {
+    margin-top: 2rem;
+  }
+
+  .gallery__heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .gallery__item {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    display: block;
+    background: var(--color-surface-raised);
+  }
+
+  .gallery__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s, opacity 0.2s;
+  }
+
+  .gallery__item:hover .gallery__image {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+
+  @media (max-width: 480px) {
+    .gallery__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
