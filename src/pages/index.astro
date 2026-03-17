@@ -38,7 +38,7 @@ const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3)
       <div class="container">
         <div class="section-header">
           <h2 class="section-header__title">More Updates</h2>
-          <a href="/build-log" class="section-header__link">View all →</a>
+          <a href={`${import.meta.env.BASE_URL}build-log`} class="section-header__link">View all →</a>
         </div>
         <div class="card-grid">
           {recentLogs.map((log) => (
@@ -55,7 +55,7 @@ const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3)
           ))}
         </div>
         <div class="view-all">
-          <a href="/build-log" class="btn btn--outline">View all entries →</a>
+          <a href={`${import.meta.env.BASE_URL}build-log`} class="btn btn--outline">View all entries →</a>
         </div>
       </div>
     </section>
