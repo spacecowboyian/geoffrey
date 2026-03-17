@@ -1,0 +1,141 @@
+---
+/**
+ * MetaDisplay — shows build log metadata fields (vehicle, phase, odometer, etc.)
+ */
+interface Props {
+  vehicle: string;
+  phase: string;
+  status: string;
+  date: string | null;
+  odometer?: number | null;
+  hours?: number | null;
+  partsUsed?: readonly string[];
+}
+
+const { vehicle, phase, status, date, odometer, hours, partsUsed } = Astro.props;
+
+const vehicleLabel = vehicle === '1962-renault-dauphine' ? '1962 Renault Dauphine' : vehicle;
+const phaseLabel = phase
+  .split('-')
+  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+  .join(' ');
+const statusLabel = status.replace('-', ' ');
+
+const displayDate = date
+  ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+---
+
+<div class="meta-grid">
+  {displayDate && (
+    <div class="meta-item">
+      <span class="meta-item__label">Date</span>
+      <span class="meta-item__value">{displayDate}</span>
+    </div>
+  )}
+
+  <div class="meta-item">
+    <span class="meta-item__label">Vehicle</span>
+    <span class="meta-item__value">{vehicleLabel}</span>
+  </div>
+
+  <div class="meta-item">
+    <span class="meta-item__label">Phase</span>
+    <span class={`badge badge--phase`}>{phaseLabel}</span>
+  </div>
+
+  <div class="meta-item">
+    <span class="meta-item__label">Status</span>
+    <span class={`badge badge--status-${status}`}>{statusLabel}</span>
+  </div>
+
+  {odometer != null && (
+    <div class="meta-item">
+      <span class="meta-item__label">Odometer</span>
+      <span class="meta-item__value">{odometer.toLocaleString()} mi</span>
+    </div>
+  )}
+
+  {hours != null && (
+    <div class="meta-item">
+      <span class="meta-item__label">Hours</span>
+      <span class="meta-item__value">{hours} hrs</span>
+    </div>
+  )}
+</div>
+
+{partsUsed && partsUsed.length > 0 && (
+  <div class="parts-used">
+    <h4 class="parts-used__heading">Parts &amp; Materials Used</h4>
+    <ul class="parts-used__list">
+      {partsUsed.map((part) => (
+        <li>{part}</li>
+      ))}
+    </ul>
+  </div>
+)}
+
+<style>
+  .meta-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    padding: 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .meta-item__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .meta-item__value {
+    font-size: 0.95rem;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .parts-used {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .parts-used__heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .parts-used__list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .parts-used__list li {
+    font-size: 0.85rem;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    padding: 0.25em 0.75em;
+    border-radius: 999px;
+    color: var(--color-text-muted);
+  }
+</style>

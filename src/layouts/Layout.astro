@@ -1,0 +1,120 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Geoffrey — 1962 Renault Dauphine Build Log',
+  description = 'A build log for my 1962 Renault Dauphine.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot name="header">
+      <header class="site-header">
+        <div class="container">
+          <nav class="site-nav">
+            <a href="/" class="site-nav__logo">Geoffrey</a>
+            <ul class="site-nav__links">
+              <li><a href="/build-log">Build Log</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+    </slot>
+
+    <main>
+      <slot />
+    </main>
+
+    <slot name="footer">
+      <footer class="site-footer">
+        <div class="container">
+          <p class="site-footer__text">
+            Geoffrey — 1962 Renault Dauphine &middot;
+            <a href="/keystatic">Edit content</a>
+          </p>
+        </div>
+      </footer>
+    </slot>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+    padding-block: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--color-bg);
+    z-index: 100;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .site-nav__logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+  }
+
+  .site-nav__links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .site-nav__links a {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .site-nav__links a:hover {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    padding-block: 1.5rem;
+    margin-top: auto;
+  }
+
+  .site-footer__text {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .site-footer__text a {
+    color: var(--color-text-muted);
+  }
+
+  .site-footer__text a:hover {
+    color: var(--color-accent);
+  }
+</style>

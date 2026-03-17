@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const settings = await reader.singletons.siteSettings.read();
+---
+
+<Layout
+  title={`About — ${settings?.siteTitle ?? 'Geoffrey'}`}
+  description={settings?.siteDescription ?? undefined}
+>
+  <section class="section">
+    <div class="container">
+      <h1 class="page-title">About</h1>
+
+      <div class="about-body prose">
+        {settings?.aboutText
+          ? settings.aboutText.split('\n').map((para) => para.trim() && <p>{para}</p>)
+          : <p>A build log for a 1962 Renault Dauphine restoration.</p>
+        }
+      </div>
+
+      {(settings?.github || settings?.instagram || settings?.youtube) && (
+        <nav class="social-links">
+          <h2 class="social-links__heading">Links</h2>
+          <ul class="social-links__list">
+            {settings.github && (
+              <li>
+                <a href={settings.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+              </li>
+            )}
+            {settings.instagram && (
+              <li>
+                <a href={settings.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+              </li>
+            )}
+            {settings.youtube && (
+              <li>
+                <a href={settings.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    color: var(--color-accent);
+  }
+
+  .about-body {
+    margin-bottom: 2.5rem;
+  }
+
+  .about-body p {
+    margin-bottom: 1.25rem;
+    max-width: 65ch;
+    font-size: 1.05rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .social-links__heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .social-links__list {
+    list-style: none;
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .social-links__list a {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+</style>

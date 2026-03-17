@@ -1,0 +1,85 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BuildLogCard from '../../components/BuildLogCard.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../keystatic.config';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const settings = await reader.singletons.siteSettings.read();
+
+const allLogs = await reader.collections.buildLogs.all();
+const sortedLogs = allLogs
+  .filter((log) => log.entry.date)
+  .sort((a, b) => new Date(b.entry.date!).getTime() - new Date(a.entry.date!).getTime());
+---
+
+<Layout
+  title={`Build Log — ${settings?.siteTitle ?? 'Geoffrey'}`}
+  description="All build log entries for the 1962 Renault Dauphine restoration."
+>
+  <section class="section">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-header__title">Build Log</h1>
+        <p class="page-header__sub">
+          {sortedLogs.length} {sortedLogs.length === 1 ? 'entry' : 'entries'} — newest first
+        </p>
+      </div>
+
+      {sortedLogs.length === 0 && (
+        <p class="empty-state">No build log entries yet. Add one in <a href="/keystatic">Keystatic</a>.</p>
+      )}
+
+      <div class="card-grid">
+        {sortedLogs.map((log) => (
+          <BuildLogCard
+            slug={log.slug}
+            title={log.entry.title}
+            date={log.entry.date}
+            phase={log.entry.phase}
+            vehicle={log.entry.vehicle}
+            status={log.entry.status}
+            summary={log.entry.summary}
+            coverImage={log.entry.coverImage}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-header__title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+  }
+
+  .page-header__sub {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .empty-state {
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 640px) {
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
