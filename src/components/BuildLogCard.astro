@@ -31,7 +31,7 @@ const phaseLabel = phase
   .join(' ');
 ---
 
-<a href={`/build-log/${slug}`} class={featured ? 'card card--featured' : 'card'}>
+<a href={`${import.meta.env.BASE_URL}build-log/${slug}`} class={featured ? 'card card--featured' : 'card'}>
   {coverImage && (
     <div class="card__image-wrap">
       <img src={coverImage} alt={title} class="card__image" loading="lazy" />
