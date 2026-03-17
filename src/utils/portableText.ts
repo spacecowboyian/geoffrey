@@ -18,8 +18,10 @@ export function renderPortableText(blocks: (PortableTextBlock | ArbitraryTypedOb
     components: {
       types: {
         image: ({ value }) => {
+          const imageValue = value as { alt?: string; asset?: unknown };
+          if (!imageValue.asset) return '';
           const src = urlFor(value).auto('format').width(1200).url();
-          const alt = escapeHtml((value as { alt?: string }).alt ?? '');
+          const alt = escapeHtml(imageValue.alt ?? '');
           return `<figure class="prose-image"><img src="${src}" alt="${alt}" loading="lazy" /></figure>`;
         },
       },

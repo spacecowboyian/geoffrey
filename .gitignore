@@ -19,3 +19,9 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# tool worktrees / agent scratch space
+.claude/
+
+# Sanity Studio generated runtime
+sanity/.sanity/

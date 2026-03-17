@@ -40,7 +40,7 @@ const recentLogs = allLogs.slice(0, 3);
               vehicle={log.vehicle}
               status={log.status}
               summary={log.summary}
-              coverImage={log.coverImage ? urlFor(log.coverImage).width(800).auto('format').url() : null}
+              coverImage={log.coverImage?.asset ? urlFor(log.coverImage).width(800).auto('format').url() : null}
             />
           ))}
         </div>

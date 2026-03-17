@@ -12,10 +12,13 @@ const BUILD_LOG_FIELDS = `
   hours,
   status,
   partsUsed,
-  coverImage,
-  gallery,
+  coverImage { ..., asset-> },
+  gallery[]{ ..., asset-> }[defined(asset)],
   summary,
-  body
+  body[] {
+    ...,
+    _type == "image" => { ..., asset-> }
+  }
 `;
 
 export async function getAllBuildLogs(): Promise<SanityBuildLog[]> {

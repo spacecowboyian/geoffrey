@@ -7,7 +7,7 @@ export default defineConfig({
   name: 'geoffrey',
   title: 'Geoffrey — Build Log',
 
-  projectId: process.env.SANITY_STUDIO_PROJECT_ID!,
+  projectId: 'mxtdl2ha',
   dataset: process.env.SANITY_STUDIO_DATASET ?? 'production',
 
   plugins: [

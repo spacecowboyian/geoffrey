@@ -21,12 +21,12 @@ if (!entry) {
 
 const contentHtml = renderPortableText(entry.body);
 
-const coverImageUrl = entry.coverImage
+const coverImageUrl = entry.coverImage?.asset
   ? urlFor(entry.coverImage).width(1200).auto('format').url()
   : null;
 
 const galleryUrls = (entry.gallery ?? [])
-  .filter(Boolean)
+  .filter((img) => img?.asset)
   .map((img) => urlFor(img).width(1200).auto('format').url());
 
 const displayDate = entry.date
