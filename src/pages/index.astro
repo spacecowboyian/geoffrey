@@ -13,23 +13,10 @@ const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3)
   title={settings?.siteTitle ?? 'Geoffrey'}
   description={settings?.siteDescription ?? undefined}
 >
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <h1 class="hero__title">{settings?.heroTitle ?? 'Project Geoffrey'}</h1>
-      <p class="hero__text">{settings?.heroText}</p>
-      <a href="/build-log" class="btn">View all build log entries →</a>
-    </div>
-  </section>
-
   <!-- Latest entry — full-width featured card -->
   {featuredLog && (
     <section class="section section--featured">
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-header__title">Latest Update</h2>
-          <a href="/build-log" class="section-header__link">View all →</a>
-        </div>
         <BuildLogCard
           slug={featuredLog.slug}
           title={featuredLog.title}
@@ -76,27 +63,6 @@ const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3)
 </Layout>
 
 <style>
-  .hero {
-    padding-block: 5rem 4rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .hero__title {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 800;
-    color: var(--color-accent);
-    margin-bottom: 1.25rem;
-    letter-spacing: -0.02em;
-  }
-
-  .hero__text {
-    font-size: 1.15rem;
-    color: var(--color-text-muted);
-    max-width: 60ch;
-    line-height: 1.7;
-    margin-bottom: 2rem;
-  }
-
   .btn {
     display: inline-block;
     padding: 0.65em 1.4em;
@@ -162,10 +128,6 @@ const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3)
   }
 
   @media (max-width: 640px) {
-    .hero {
-      padding-block: 3rem 2.5rem;
-    }
-
     .card-grid {
       grid-template-columns: 1fr;
     }
