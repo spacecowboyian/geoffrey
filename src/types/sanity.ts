@@ -31,6 +31,7 @@ export interface SanityBuildLog {
   hours: number | null;
   status: string;
   partsUsed: string[];
+  featured: boolean;
   coverImage: SanityImage | null;
   gallery: SanityImage[];
   summary: string;

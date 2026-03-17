@@ -12,6 +12,7 @@ const BUILD_LOG_FIELDS = `
   hours,
   status,
   partsUsed,
+  featured,
   coverImage { ..., asset-> },
   gallery[]{ ..., asset-> }[defined(asset)],
   summary,
@@ -24,6 +25,12 @@ const BUILD_LOG_FIELDS = `
 export async function getAllBuildLogs(): Promise<SanityBuildLog[]> {
   return sanityClient.fetch(
     `*[_type == "buildLog"] | order(date desc) { ${BUILD_LOG_FIELDS} }`,
+  );
+}
+
+export async function getFeaturedBuildLog(): Promise<SanityBuildLog | null> {
+  return sanityClient.fetch(
+    `*[_type == "buildLog" && featured == true][0] { ${BUILD_LOG_FIELDS} }`,
   );
 }
 

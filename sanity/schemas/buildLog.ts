@@ -120,6 +120,14 @@ export default defineType({
     }),
 
     defineField({
+      name: 'featured',
+      title: 'Featured on homepage',
+      type: 'boolean',
+      description: 'Pin this entry to the top of the homepage as the featured card. Only one entry should be featured at a time.',
+      initialValue: false,
+    }),
+
+    defineField({
       name: 'summary',
       title: 'Summary',
       type: 'text',

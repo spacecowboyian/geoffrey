@@ -1,12 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BuildLogCard from '../components/BuildLogCard.astro';
-import { getAllBuildLogs, getSiteSettings } from '../utils/queries';
+import { getAllBuildLogs, getFeaturedBuildLog, getSiteSettings } from '../utils/queries';
 import { urlFor } from '../utils/imageUrl';
 
 const settings = await getSiteSettings();
-const allLogs = await getAllBuildLogs();
-const recentLogs = allLogs.slice(0, 3);
+const [featuredLog, allLogs] = await Promise.all([getFeaturedBuildLog(), getAllBuildLogs()]);
+const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3);
 ---
 
 <Layout
@@ -22,12 +22,35 @@ const recentLogs = allLogs.slice(0, 3);
     </div>
   </section>
 
-  <!-- Recent entries -->
+  <!-- Latest entry — full-width featured card -->
+  {featuredLog && (
+    <section class="section section--featured">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-header__title">Latest Update</h2>
+          <a href="/build-log" class="section-header__link">View all →</a>
+        </div>
+        <BuildLogCard
+          slug={featuredLog.slug}
+          title={featuredLog.title}
+          date={featuredLog.date}
+          phase={featuredLog.phase}
+          vehicle={featuredLog.vehicle}
+          status={featuredLog.status}
+          summary={featuredLog.summary}
+          coverImage={featuredLog.coverImage?.asset ? urlFor(featuredLog.coverImage).width(1600).auto('format').url() : null}
+          featured={true}
+        />
+      </div>
+    </section>
+  )}
+
+  <!-- More recent entries -->
   {recentLogs.length > 0 && (
     <section class="section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-header__title">Latest Updates</h2>
+          <h2 class="section-header__title">More Updates</h2>
           <a href="/build-log" class="section-header__link">View all →</a>
         </div>
         <div class="card-grid">
@@ -120,6 +143,10 @@ const recentLogs = allLogs.slice(0, 3);
     font-size: 0.9rem;
     color: var(--color-accent);
     white-space: nowrap;
+  }
+
+  .section--featured {
+    padding-bottom: 0;
   }
 
   .card-grid {

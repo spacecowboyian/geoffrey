@@ -11,9 +11,10 @@ interface Props {
   status: string;
   summary: string;
   coverImage?: string | null;
+  featured?: boolean;
 }
 
-const { slug, title, date, phase, vehicle, status, summary, coverImage } = Astro.props;
+const { slug, title, date, phase, vehicle, status, summary, coverImage, featured = false } = Astro.props;
 
 // Format the date for display
 const displayDate = date
@@ -30,7 +31,7 @@ const phaseLabel = phase
   .join(' ');
 ---
 
-<a href={`/build-log/${slug}`} class="card">
+<a href={`/build-log/${slug}`} class={featured ? 'card card--featured' : 'card'}>
   {coverImage && (
     <div class="card__image-wrap">
       <img src={coverImage} alt={title} class="card__image" loading="lazy" />
@@ -152,5 +153,48 @@ const phaseLabel = phase
     font-weight: 600;
     color: var(--color-accent);
     margin-top: 0.5rem;
+  }
+
+  /* Featured / full-width variant */
+  .card--featured {
+    flex-direction: row;
+    min-height: 320px;
+  }
+
+  .card--featured .card__image-wrap {
+    flex: 0 0 50%;
+    aspect-ratio: unset;
+  }
+
+  .card--featured .card__body {
+    padding: 2rem;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+
+  .card--featured .card__title {
+    font-size: 1.6rem;
+    line-height: 1.25;
+  }
+
+  .card--featured .card__summary {
+    -webkit-line-clamp: 4;
+    font-size: 1rem;
+  }
+
+  .card--featured .card__cta {
+    font-size: 0.95rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 700px) {
+    .card--featured {
+      flex-direction: column;
+    }
+
+    .card--featured .card__image-wrap {
+      flex: unset;
+      aspect-ratio: 16 / 9;
+    }
   }
 </style>
