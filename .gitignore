@@ -3,6 +3,7 @@ node_modules/
 
 # build output
 .astro/
+dist/
 
 # environment variables
 .env

@@ -1,10 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { createReader } from '@keystatic/core/reader';
-import keystaticConfig from '../../keystatic.config';
+import { getSiteSettings } from '../utils/queries';
 
-const reader = createReader(process.cwd(), keystaticConfig);
-const settings = await reader.singletons.siteSettings.read();
+const settings = await getSiteSettings();
 ---
 
 <Layout
@@ -22,25 +20,15 @@ const settings = await reader.singletons.siteSettings.read();
         }
       </div>
 
-      {(settings?.github || settings?.instagram || settings?.youtube) && (
+      {settings?.socialLinks && settings.socialLinks.length > 0 && (
         <nav class="social-links">
           <h2 class="social-links__heading">Links</h2>
           <ul class="social-links__list">
-            {settings.github && (
+            {settings.socialLinks.map((link) => (
               <li>
-                <a href={settings.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href={link.url} target="_blank" rel="noopener noreferrer">{link.platform}</a>
               </li>
-            )}
-            {settings.instagram && (
-              <li>
-                <a href={settings.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
-              </li>
-            )}
-            {settings.youtube && (
-              <li>
-                <a href={settings.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
-              </li>
-            )}
+            ))}
           </ul>
         </nav>
       )}
