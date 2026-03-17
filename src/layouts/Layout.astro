@@ -19,7 +19,7 @@ const {
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <title>{title}</title>
   </head>
   <body>
@@ -27,10 +27,10 @@ const {
       <header class="site-header">
         <div class="container">
           <nav class="site-nav">
-            <a href="/" class="site-nav__logo">Geoffrey</a>
+            <a href={import.meta.env.BASE_URL} class="site-nav__logo">Geoffrey</a>
             <ul class="site-nav__links">
-              <li><a href="/build-log">Build Log</a></li>
-              <li><a href="/about">About</a></li>
+              <li><a href={`${import.meta.env.BASE_URL}build-log`}>Build Log</a></li>
+              <li><a href={`${import.meta.env.BASE_URL}about`}>About</a></li>
             </ul>
           </nav>
         </div>

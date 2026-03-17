@@ -16,7 +16,7 @@ const settings = await getSiteSettings();
 const entry = await getBuildLogBySlug(slug as string);
 
 if (!entry) {
-  return Astro.redirect('/build-log');
+  return Astro.redirect(`${import.meta.env.BASE_URL}build-log`);
 }
 
 const contentHtml = renderPortableText(entry.body);
@@ -45,7 +45,7 @@ const displayDate = entry.date
   <article class="section">
     <div class="container">
       <!-- Back link -->
-      <a href="/build-log" class="back-link">← Build Log</a>
+      <a href={`${import.meta.env.BASE_URL}build-log`} class="back-link">← Build Log</a>
 
       <!-- Cover image -->
       {coverImageUrl && (
