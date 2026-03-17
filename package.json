@@ -11,12 +11,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^9.0.0",
-    "@astrojs/react": "^5.0.0",
-    "@keystatic/astro": "^5.0.0",
-    "@keystatic/core": "^0.5.0",
-    "astro": "^5.0.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "@portabletext/to-html": "^5.0.2",
+    "@sanity/client": "^7.17.0",
+    "@sanity/image-url": "^2.0.3",
+    "astro": "^5.0.0"
   }
 }

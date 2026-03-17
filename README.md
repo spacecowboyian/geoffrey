@@ -1,6 +1,6 @@
 # Geoffrey — 1962 Renault Dauphine Build Log
 
-A car build log website for the 1962 Renault Dauphine restoration project. Built with [Astro](https://astro.build) and [Keystatic](https://keystatic.com) as a flat-file CMS. All content lives in the repo.
+A car build log website for the 1962 Renault Dauphine restoration project. Built with [Astro](https://astro.build) (static output, hosted on GitHub Pages) and [Sanity](https://www.sanity.io) as the content backend.
 
 ---
 
@@ -9,9 +9,12 @@ A car build log website for the 1962 Renault Dauphine restoration project. Built
 | Tool | Purpose |
 |---|---|
 | [Astro 5](https://astro.build) | Site framework (TypeScript, static output) |
-| [Keystatic](https://keystatic.com) | Flat-file CMS with browser-based admin UI |
+| [Sanity v3](https://www.sanity.io) | Headless CMS — content API + hosted Studio |
+| `@sanity/client` | Fetch content from Sanity at build time |
+| `@sanity/image-url` | Build CDN image URLs from Sanity image assets |
+| `@portabletext/to-html` | Render Portable Text body content to HTML |
 | Plain CSS | Styling — dark theme, no framework |
-| `@astrojs/node` | Node adapter for Keystatic admin SSR |
+| GitHub Pages | Static frontend hosting |
 
 ---
 
@@ -19,19 +22,29 @@ A car build log website for the 1962 Renault Dauphine restoration project. Built
 
 ```
 geoffrey/
-├── astro.config.mjs          # Astro config (node adapter + Keystatic integration)
-├── keystatic.config.ts       # Content model definitions
+├── astro.config.mjs          # Astro config (static output)
 ├── tsconfig.json
-├── content/
-│   ├── site-settings.yaml    # Site title, hero text, about text, social links
-│   └── build-logs/           # One .mdoc file per build log entry
-│       ├── first-look-teardown.mdoc
-│       ├── floor-pan-rust-repair.mdoc
-│       └── front-suspension-rebuild.mdoc
+├── .env.example              # Required environment variables
+├── sanity/                   # Sanity Studio project
+│   ├── sanity.config.ts      # Studio configuration
+│   ├── schemas/
+│   │   ├── buildLog.ts       # Build log content model
+│   │   └── siteSettings.ts   # Site settings singleton
+│   └── package.json
+├── scripts/
+│   └── migrate-to-sanity.mjs # One-time migration script (Keystatic → Sanity)
+├── content/                  # Legacy Keystatic content (kept for reference)
 ├── public/
 │   ├── favicon.svg
-│   └── images/build-logs/    # Drop photos here (referenced by Keystatic)
+│   └── images/build-logs/    # Legacy local images (re-upload to Sanity)
 └── src/
+    ├── types/
+    │   └── sanity.ts         # TypeScript types for Sanity documents
+    ├── utils/
+    │   ├── sanityClient.ts   # Sanity client instance
+    │   ├── queries.ts        # GROQ queries
+    │   ├── imageUrl.ts       # @sanity/image-url helper
+    │   └── portableText.ts   # Portable Text → HTML renderer
     ├── layouts/
     │   └── Layout.astro      # Base HTML layout (header + footer)
     ├── components/
@@ -44,10 +57,8 @@ geoffrey/
     │   └── build-log/
     │       ├── index.astro    # Build log index (all entries)
     │       └── [slug].astro   # Individual build log detail page
-    ├── styles/
-    │   └── global.css         # Global dark-theme CSS variables and utilities
-    └── utils/
-        └── renderDocument.ts  # Converts Keystatic document AST → HTML
+    └── styles/
+        └── global.css         # Global dark-theme CSS variables and utilities
 ```
 
 ---
@@ -58,208 +69,174 @@ geoffrey/
 
 - Node.js 18+
 - npm 9+
+- A [Sanity account](https://www.sanity.io) and project
 
-### Install
+### 1. Create a Sanity Project
+
+```bash
+# Install Sanity CLI globally (or use npx)
+npm install -g sanity
+
+# Create a new project (or use an existing one)
+sanity init
+```
+
+Note your **Project ID** from [sanity.io/manage](https://www.sanity.io/manage).
+
+### 2. Configure Environment Variables
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and fill in your Sanity project ID:
+
+```env
+PUBLIC_SANITY_PROJECT_ID=your_project_id_here
+PUBLIC_SANITY_DATASET=production
+```
+
+### 3. Install Frontend Dependencies
 
 ```bash
 npm install
 ```
 
-### Development
+### 4. Set Up the Sanity Studio
 
 ```bash
+cd sanity
+cp .env.example .env
+# fill in SANITY_STUDIO_PROJECT_ID in sanity/.env
+npm install
 npm run dev
 ```
 
-Open [http://localhost:4321](http://localhost:4321) for the site.
+The Studio runs at [http://localhost:3333](http://localhost:3333).
 
-### Keystatic Admin UI
+### 5. Add Content
 
-With the dev server running, open [http://localhost:4321/keystatic](http://localhost:4321/keystatic).
-
-From there you can:
-- Add, edit, and delete **Build Log** entries
+Use the Sanity Studio to:
+- Create **Build Log** entries
 - Edit **Site Settings** (title, hero text, about text, social links)
 
-Content is saved directly to files in the `content/` directory — no database, no API key, no cloud required.
+### 6. Run the Frontend
 
-### Build
+```bash
+# Back in the root directory
+npm run dev
+```
+
+Open [http://localhost:4321](http://localhost:4321).
+
+---
+
+## Migrating Existing Keystatic Content
+
+If you have existing content in `content/build-logs/` and `content/site-settings.yaml`, run the migration script:
+
+```bash
+export SANITY_PROJECT_ID=your_project_id
+export SANITY_TOKEN=your_write_token   # from sanity.io/manage → API → Tokens
+node scripts/migrate-to-sanity.mjs
+```
+
+See [MIGRATION.md](./MIGRATION.md) for full details, including notes on image migration.
+
+---
+
+## Build
 
 ```bash
 npm run build
 ```
 
-Outputs to `dist/`. Static pages are pre-rendered at build time. The Keystatic admin routes (`/keystatic/*` and `/api/keystatic/*`) are SSR and handled by the Node adapter.
+Outputs to `dist/`. Content is fetched from the Sanity API at build time.
 
-### Preview the build
+### Environment Variables for CI
+
+Set these in your GitHub Actions secrets:
+
+| Variable | Description |
+|---|---|
+| `PUBLIC_SANITY_PROJECT_ID` | Your Sanity project ID |
+| `PUBLIC_SANITY_DATASET` | Dataset name (usually `production`) |
+
+---
+
+## Deploying the Studio
 
 ```bash
-npm run preview
+cd sanity
+npm run deploy
 ```
 
----
-
-## Adding a New Build Log Entry
-
-### Via Keystatic UI (recommended)
-
-1. Run `npm run dev`
-2. Go to [http://localhost:4321/keystatic](http://localhost:4321/keystatic)
-3. Click **Build Logs → Add**
-4. Fill in the fields and write the content
-5. Save — Keystatic writes a `.mdoc` file to `content/build-logs/`
-
-### Manually
-
-Create a new file in `content/build-logs/` named `your-slug.mdoc`:
-
-```mdoc
----
-title: 'Your Entry Title'
-date: '2024-06-01'
-vehicle: 1962-renault-dauphine
-phase: engine          # teardown | rust-repair | suspension | brakes | engine |
-                       # transmission | wiring | interior | paint | bodywork | testing | misc
-status: in-progress    # planned | in-progress | complete | blocked
-odometer: 89500
-hours: 4
-partsUsed:
-  - Part name here
-  - Another part
-summary: Short one-sentence summary shown on cards.
-coverImage: ~          # or: /images/build-logs/your-photo.jpg
-gallery: []
----
-
-## Heading
-
-Your full writeup goes here. Standard Markdown is supported.
-```
-
-The slug is the filename (without `.mdoc`). The entry will appear immediately in `npm run dev` and on the next build.
-
----
-
-## Adding Photos
-
-Place image files in `public/images/build-logs/`. They'll be served at `/images/build-logs/filename.jpg`.
-
-Reference them in your content frontmatter:
-
-```yaml
-coverImage: /images/build-logs/my-photo.jpg
-gallery:
-  - /images/build-logs/photo-1.jpg
-  - /images/build-logs/photo-2.jpg
-```
-
-Or use the Keystatic UI image picker, which handles placement automatically.
+This deploys the Studio to `https://your-project.sanity.studio`. You can also self-host it on Vercel, Netlify, or any static host.
 
 ---
 
 ## Content Model
 
-### Build Log (`content/build-logs/*.mdoc`)
+### Build Log (`buildLog`)
 
 | Field | Type | Notes |
 |---|---|---|
-| `title` | text | Display title |
+| `title` | string | Display title |
+| `slug` | slug | Auto-generated from title |
 | `date` | date | ISO 8601 (YYYY-MM-DD) |
-| `vehicle` | select | Currently: `1962-renault-dauphine` |
-| `phase` | select | teardown, rust-repair, suspension, brakes, engine, transmission, wiring, interior, paint, bodywork, testing, misc |
-| `status` | select | planned, in-progress, complete, blocked |
-| `odometer` | integer | Miles (optional) |
+| `vehicle` | string (select) | Currently: `1962-renault-dauphine` |
+| `phase` | string (select) | teardown, rust-repair, suspension, brakes, engine, transmission, wiring, interior, paint, bodywork, testing, misc |
+| `status` | string (select) | planned, in-progress, complete, blocked |
+| `odometer` | number | Miles (optional) |
 | `hours` | number | Hours worked (optional) |
 | `partsUsed` | string[] | List of parts and materials |
-| `coverImage` | image | Cover photo — stored in `public/images/build-logs/` |
-| `gallery` | image[] | Additional photos |
+| `coverImage` | image | Cover photo (Sanity image asset) |
+| `gallery` | image[] | Additional photos (Sanity image assets) |
 | `summary` | text | Short description (shown on cards) |
-| `content` | document | Full rich-text writeup (MDOC body) |
+| `body` | Portable Text | Full rich-text writeup |
 
-### Site Settings (`content/site-settings.yaml`)
+### Site Settings (`siteSettings`)
 
 | Field | Type |
 |---|---|
-| `siteTitle` | text |
+| `siteTitle` | string |
 | `siteDescription` | text |
-| `heroTitle` | text |
-| `heroText` | text (multiline) |
-| `aboutText` | text (multiline) |
-| `github` | url |
-| `instagram` | url |
-| `youtube` | url |
+| `heroTitle` | string |
+| `heroText` | text |
+| `aboutText` | text |
+| `socialLinks` | array of `{ platform, url }` |
 
 ---
 
-## Deployment
+## Added / Removed Packages
 
-### Vercel / Netlify
+### Added
 
-Replace `@astrojs/node` with `@astrojs/vercel` or `@astrojs/netlify`:
-
-```bash
-npm install @astrojs/vercel
+```
+@sanity/client        ^7.17.0   Sanity API client
+@sanity/image-url     ^2.0.3    Image URL builder for Sanity assets
+@portabletext/to-html ^5.0.2    Portable Text → HTML (server-side)
 ```
 
-```js
-// astro.config.mjs
-import vercel from '@astrojs/vercel';
+### Removed
 
-export default defineConfig({
-  adapter: vercel(),
-  integrations: [react(), keystatic()],
-});
 ```
-
-Note: Keystatic's local file-based editing only works in local development. For production CMS editing, configure [Keystatic Cloud](https://keystatic.com/docs/cloud) or GitHub mode.
-
-### Static-only (no admin on server)
-
-If you only need a static site without server-side Keystatic, remove the adapter and integrations from `astro.config.mjs`, change `output` to `'static'`, and use Keystatic only locally to edit content before each deploy.
+@keystatic/core       (removed)
+@keystatic/astro      (removed)
+@astrojs/node         (removed — no longer needed for SSR)
+@astrojs/react        (removed)
+react                 (removed)
+react-dom             (removed)
+```
 
 ---
 
-## Files Created by This Scaffold
+## Pages
 
-```
-astro.config.mjs
-keystatic.config.ts
-tsconfig.json
-package.json
-.gitignore
-public/favicon.svg
-public/images/build-logs/       (empty — add your photos here)
-content/site-settings.yaml
-content/build-logs/first-look-teardown.mdoc
-content/build-logs/floor-pan-rust-repair.mdoc
-content/build-logs/front-suspension-rebuild.mdoc
-src/layouts/Layout.astro
-src/components/BuildLogCard.astro
-src/components/MetaDisplay.astro
-src/components/Gallery.astro
-src/pages/index.astro
-src/pages/about.astro
-src/pages/build-log/index.astro
-src/pages/build-log/[slug].astro
-src/styles/global.css
-src/utils/renderDocument.ts
-```
+| Route | Description |
+|---|---|
+| `/` | Home page with hero and 3 most recent build log entries |
+| `/build-log` | All build log entries, newest first |
+| `/build-log/[slug]` | Individual build log detail page |
+| `/about` | About page with hero text and social links |
 
-## Packages Added
-
-```
-astro                  ^5.0.0   Site framework
-@keystatic/core        ^0.5.0   CMS content model + reader
-@keystatic/astro       ^5.0.0   Astro integration (injects admin routes)
-@astrojs/node          ^9.0.0   Node adapter (SSR for Keystatic admin)
-@astrojs/react         ^5.0.0   React integration (required by Keystatic UI)
-react                  ^19.x    Peer dependency for Keystatic
-react-dom              ^19.x    Peer dependency for Keystatic
-```
-
-## Manual Steps
-
-1. **Add photos** — place build log photos in `public/images/build-logs/` and reference them in `.mdoc` frontmatter or via the Keystatic UI.
-2. **Update site settings** — go to `/keystatic` and edit the Site Settings singleton with your own title, hero text, about text, and social links.
-3. **Swap the adapter** for Vercel or Netlify before deploying (see Deployment section above).
-4. **Extend the vehicle select** — add new `{ label, value }` entries to the `vehicle` field in `keystatic.config.ts` as needed.

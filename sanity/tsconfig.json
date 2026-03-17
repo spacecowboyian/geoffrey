@@ -1,0 +1,10 @@
+{
+  "extends": "./node_modules/sanity/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022"
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

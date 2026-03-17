@@ -3,12 +3,12 @@
  * Gallery — lightbox-style image grid for build log photos.
  */
 interface Props {
-  images: readonly (string | null)[];
+  images: string[];
   alt?: string;
 }
 
 const { images, alt = 'Build log photo' } = Astro.props;
-const validImages = images.filter((img): img is string => img !== null && img !== '');
+const validImages = images.filter((img) => img !== '');
 ---
 
 {validImages.length > 0 && (

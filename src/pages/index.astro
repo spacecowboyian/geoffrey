@@ -1,20 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BuildLogCard from '../components/BuildLogCard.astro';
-import { createReader } from '@keystatic/core/reader';
-import keystaticConfig from '../../keystatic.config';
+import { getAllBuildLogs, getSiteSettings } from '../utils/queries';
+import { urlFor } from '../utils/imageUrl';
 
-const reader = createReader(process.cwd(), keystaticConfig);
-
-// Load site settings
-const settings = await reader.singletons.siteSettings.read();
-
-// Load all build logs, sorted newest first, take the 3 most recent
-const allLogs = await reader.collections.buildLogs.all();
-const recentLogs = allLogs
-  .filter((log) => log.entry.date)
-  .sort((a, b) => new Date(b.entry.date!).getTime() - new Date(a.entry.date!).getTime())
-  .slice(0, 3);
+const settings = await getSiteSettings();
+const allLogs = await getAllBuildLogs();
+const recentLogs = allLogs.slice(0, 3);
 ---
 
 <Layout
@@ -42,13 +34,13 @@ const recentLogs = allLogs
           {recentLogs.map((log) => (
             <BuildLogCard
               slug={log.slug}
-              title={log.entry.title}
-              date={log.entry.date}
-              phase={log.entry.phase}
-              vehicle={log.entry.vehicle}
-              status={log.entry.status}
-              summary={log.entry.summary}
-              coverImage={log.entry.coverImage}
+              title={log.title}
+              date={log.date}
+              phase={log.phase}
+              vehicle={log.vehicle}
+              status={log.status}
+              summary={log.summary}
+              coverImage={log.coverImage ? urlFor(log.coverImage).width(800).auto('format').url() : null}
             />
           ))}
         </div>

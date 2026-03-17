@@ -1,0 +1,17 @@
+{
+  "name": "geoffrey-studio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sanity Studio for the Geoffrey build log site",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "manage": "sanity manage"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sanity": "^5.16.0"
+  }
+}

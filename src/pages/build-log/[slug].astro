@@ -2,30 +2,32 @@
 import Layout from '../../layouts/Layout.astro';
 import MetaDisplay from '../../components/MetaDisplay.astro';
 import Gallery from '../../components/Gallery.astro';
-import { createReader } from '@keystatic/core/reader';
-import keystaticConfig from '../../../keystatic.config';
-import { renderDocument } from '../../utils/renderDocument';
+import { getAllBuildLogSlugs, getBuildLogBySlug, getSiteSettings } from '../../utils/queries';
+import { urlFor } from '../../utils/imageUrl';
+import { renderPortableText } from '../../utils/portableText';
 
 export async function getStaticPaths() {
-  const reader = createReader(process.cwd(), keystaticConfig);
-  const slugs = await reader.collections.buildLogs.list();
+  const slugs = await getAllBuildLogSlugs();
   return slugs.map((slug) => ({ params: { slug } }));
 }
 
 const { slug } = Astro.params;
-const reader = createReader(process.cwd(), keystaticConfig);
-const settings = await reader.singletons.siteSettings.read();
-
-const entry = await reader.collections.buildLogs.read(slug as string, {
-  resolveLinkedFiles: true,
-});
+const settings = await getSiteSettings();
+const entry = await getBuildLogBySlug(slug as string);
 
 if (!entry) {
   return Astro.redirect('/build-log');
 }
 
-// entry.content is now DocumentElement[] (resolved, not a function)
-const contentHtml = renderDocument(entry.content as any);
+const contentHtml = renderPortableText(entry.body);
+
+const coverImageUrl = entry.coverImage
+  ? urlFor(entry.coverImage).width(1200).auto('format').url()
+  : null;
+
+const galleryUrls = (entry.gallery ?? [])
+  .filter(Boolean)
+  .map((img) => urlFor(img).width(1200).auto('format').url());
 
 const displayDate = entry.date
   ? new Date(entry.date).toLocaleDateString('en-US', {
@@ -46,9 +48,9 @@ const displayDate = entry.date
       <a href="/build-log" class="back-link">← Build Log</a>
 
       <!-- Cover image -->
-      {entry.coverImage && (
+      {coverImageUrl && (
         <div class="cover-image">
-          <img src={entry.coverImage} alt={entry.title} />
+          <img src={coverImageUrl} alt={entry.title} />
         </div>
       )}
 
@@ -73,7 +75,7 @@ const displayDate = entry.date
       </div>
 
       <!-- Gallery (if photos exist) -->
-      <Gallery images={entry.gallery} alt={entry.title} />
+      <Gallery images={galleryUrls} alt={entry.title} />
 
       <!-- Main content -->
       {contentHtml && (
