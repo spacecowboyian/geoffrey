@@ -6,7 +6,7 @@ import { urlFor } from '../utils/imageUrl';
 
 const settings = await getSiteSettings();
 const [featuredLog, allLogs] = await Promise.all([getFeaturedBuildLog(), getAllBuildLogs()]);
-const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 3);
+const recentLogs = allLogs.filter((l) => l._id !== featuredLog?._id).slice(0, 4);
 ---
 
 <Layout
