@@ -139,15 +139,16 @@ const validImages = images.filter((img) => img !== '');
     nextBtn?.addEventListener('click', next);
 
     // Touch swipe support
-    let touchStartX = 0;
+    let swipeStartX = 0;
     const SWIPE_THRESHOLD = 50;
 
     lightbox.addEventListener('touchstart', (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX;
+      if (e.touches.length > 0) swipeStartX = e.touches[0].clientX;
     }, { passive: true });
 
     lightbox.addEventListener('touchend', (e: TouchEvent) => {
-      const delta = e.changedTouches[0].clientX - touchStartX;
+      if (e.changedTouches.length === 0) return;
+      const delta = e.changedTouches[0].clientX - swipeStartX;
       if (Math.abs(delta) >= SWIPE_THRESHOLD) {
         if (delta < 0) next();
         else prev();
