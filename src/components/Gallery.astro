@@ -137,6 +137,23 @@ const validImages = images.filter((img) => img !== '');
     backdrop?.addEventListener('click', close);
     prevBtn?.addEventListener('click', prev);
     nextBtn?.addEventListener('click', next);
+
+    // Touch swipe support
+    let swipeStartX = 0;
+    const SWIPE_THRESHOLD = 50;
+
+    lightbox.addEventListener('touchstart', (e: TouchEvent) => {
+      if (e.touches.length > 0) swipeStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    lightbox.addEventListener('touchend', (e: TouchEvent) => {
+      if (e.changedTouches.length === 0) return;
+      const delta = e.changedTouches[0].clientX - swipeStartX;
+      if (Math.abs(delta) >= SWIPE_THRESHOLD) {
+        if (delta < 0) next();
+        else prev();
+      }
+    }, { passive: true });
   })();
 </script>
 
@@ -290,6 +307,14 @@ const validImages = images.filter((img) => img !== '');
 
   .lightbox__nav--next {
     right: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .lightbox__nav {
+      width: 3rem;
+      height: 5rem;
+      font-size: 2.25rem;
+    }
   }
 
   .lightbox__counter {
